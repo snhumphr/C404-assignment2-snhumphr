@@ -82,9 +82,9 @@ class HTTPClient(object):
         
         request_line = method + space + new_url + space + http_version + crlf
         
-        host_line = "Host: " + host + space + crlf
+        host_line = "Host: " + host + crlf
         
-        connection_line = "Connection: " + "close" + space + crlf
+        connection_line = "Connection: " + "close" + crlf
         
         if method == "POST":
             content_type_line = "Content-Type: application/x-www-form-urlencoded" + crlf
