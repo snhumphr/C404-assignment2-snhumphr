@@ -76,7 +76,11 @@ class HTTPClient(object):
         http_version = "HTTP/1.1"
         space = " "
         
-        request_line = method + space + url + space + http_version + crlf
+        new_url = url
+        if method == "GET":
+            new_url = self.build_query_string(url, args)
+        
+        request_line = method + space + new_url + space + http_version + crlf
         
         host_line = "Host: " + host + space + crlf
         
@@ -107,9 +111,33 @@ class HTTPClient(object):
                 first_arg = False
             body += key
             body += "="
-            body += "args[key]"
+            body += args[key]
         
-        return "a=aaaaaaaaaaaaa&b=bbbbbbbbbbbbbbbbbbbbbb&c=c&d=012345\r67890\n2321321\n\r"
+        return body
+    
+    def build_query_string(self, url, args):
+        if args == None:
+            return url
+        
+        existing_query = False
+        new_url = url
+        
+        if "?" in url:
+            existing_query = True
+        else:
+            new_url += "?"
+        
+        for key in args.keys():
+            if existing_query == True:
+                new_url += "&"
+            else:
+                existing_query = True
+                
+            new_url += key
+            new_url += "="
+            new_url += args[key]              
+        
+        return new_url
 
     def GET(self, url, args=None):
         
