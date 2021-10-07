@@ -79,12 +79,9 @@ class HTTPClient(object):
         request_line = method + space + url + space + http_version + crlf
         
         host_line = "Host: " + host + space + crlf
-        
-        connect_line = "Connection: keep-alive" + crlf
-        
         #TODO: Check if we need a message body on the request
         
-        return request_line + host_line + connect_line + crlf
+        return request_line + host_line + crlf
 
     def GET(self, url, args=None):
         
