@@ -67,7 +67,57 @@ class HTTPClient(object):
                 done = not part
         return buffer.decode('utf-8')
 
+    def build_request(self, url, host, method):
+        
+        crlf = "\r\n"
+        http_version = "HTTP/1.1"
+        space = " "
+        
+        request_line = method + space + url + space + http_version + crlf
+        
+        host_line = "Host: " + host + space + crlf
+        
+        connect_line = "Connection: keep-alive" + crlf
+        
+        #TODO: Check if we need a message body on the request
+        
+        return request_line + host_line + connect_line + crlf
+
     def GET(self, url, args=None):
+        
+        #use urllib to parse the url
+        parsed_url = urllib.parse.urlparse(url, "http")
+        
+        hostname = parsed_url.hostname
+        port = parsed_url.port
+        
+        #build request
+        #print("hostname: ", hostname)
+        #print("port: ", port)
+        
+        request = self.build_request(url, hostname, "GET")        
+        print("Request: ", request)
+
+        self.connect(hostname, port)
+
+        self.sendall(request)
+
+        self.socket.shutdown(socket.SHUT_WR)
+
+        response = self.recvall(self.socket)
+
+        self.close()
+
+        #response = "awoo"
+        
+        #parse the response, find out the code
+        
+        #get the body of the response
+        
+        #return the response
+        
+        print("Response: ", response)
+        
         code = 500
         body = ""
         return HTTPResponse(code, body)
