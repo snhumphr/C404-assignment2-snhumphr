@@ -177,6 +177,8 @@ class HTTPClient(object):
         
         hostname = parsed_url.hostname
         port = parsed_url.port
+        if port == None:
+            port = 80        
         
         request = self.build_request(url, hostname, "POST", args)        
         #print("Request: ", request)
