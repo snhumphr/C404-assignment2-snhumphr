@@ -70,7 +70,7 @@ class HTTPClient(object):
                 done = not part
         return buffer.decode('utf-8')
 
-    def build_request(self, url, host, method):
+    def build_request(self, url, host, method, args):
         
         crlf = "\r\n"
         http_version = "HTTP/1.1"
@@ -84,15 +84,32 @@ class HTTPClient(object):
         
         if method == "POST":
             content_type_line = "Content-Type: application/x-www-form-urlencoded" + crlf
-            content_length_line = "Content-length: " + "0" + crlf
-            #body = self.build_body(args)
+            body = self.build_body(args)
+            content_length_line = "Content-length: " + str(len(body)) + crlf
         else:
-            content_length_line = ""
             content_type_line = ""
             body = ""
+            content_length_line = ""
+            
         #TODO: Turn the args into headers
         
-        return request_line + host_line + content_type_line + content_length_line + connection_line + crlf
+        return request_line + host_line + content_type_line + content_length_line + connection_line + crlf + body + crlf
+
+    def build_body(self, args):
+        if args == None:
+            return ""
+        body = ""
+        first_arg = True
+        for key in args.keys():
+            if first_arg == False:
+                body += "&"
+            else:
+                first_arg = False
+            body += key
+            body += "="
+            body += "args[key]"
+        
+        return "a=aaaaaaaaaaaaa&b=bbbbbbbbbbbbbbbbbbbbbb&c=c&d=012345\r67890\n2321321\n\r"
 
     def GET(self, url, args=None):
         
@@ -101,29 +118,29 @@ class HTTPClient(object):
         
         hostname = parsed_url.hostname
         port = parsed_url.port
+        if port == None:
+            port = 80
         
-        request = self.build_request(url, hostname, "GET")        
-        #print("Request: ", request)
-
+        request = self.build_request(url, hostname, "GET", args)        
+        
         self.connect(hostname, port)
-
+        
         self.sendall(request)
-
+        
         self.socket.shutdown(socket.SHUT_WR)
-
+        
         response = self.recvall(self.socket)
-
+        
         self.close()
-
+        
         code = self.get_code(response)
         
         headers = self.get_headers(response)
         
         body = self.get_body(response)
 
-        #print("Code: ", code)
-        #print("Body: ", body)
-        
+        print("Code: ", code)
+        print("Body: ", body) 
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
@@ -133,7 +150,7 @@ class HTTPClient(object):
         hostname = parsed_url.hostname
         port = parsed_url.port
         
-        request = self.build_request(url, hostname, "POST")        
+        request = self.build_request(url, hostname, "POST", args)        
         #print("Request: ", request)
 
         self.connect(hostname, port)
@@ -152,6 +169,8 @@ class HTTPClient(object):
         
         body = self.get_body(response)
         
+        print("Code: ", code)
+        print("Body: ", body)        
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
