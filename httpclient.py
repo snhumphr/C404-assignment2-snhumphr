@@ -79,7 +79,10 @@ class HTTPClient(object):
         request_line = method + space + url + space + http_version + crlf
         
         host_line = "Host: " + host + space + crlf
-        #TODO: Check if we need a message body on the request
+        
+        #TODO: if this is a POST method then have a content-length header
+        
+        #TODO: Turn the args into headers
         
         return request_line + host_line + crlf
 
